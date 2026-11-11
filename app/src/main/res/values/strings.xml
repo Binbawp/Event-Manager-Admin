@@ -114,4 +114,20 @@
         <item quantity="one">%d event found</item>
         <item quantity="other">%d events found</item>
     </plurals>
+
+    <!-- Cloud upload / sync -->
+    <string name="auto_sync">Auto-sync</string>
+    <string name="cd_not_synced">Not uploaded to the cloud yet</string>
+    <string name="sync_status_never">Not uploaded yet</string>
+    <string name="sync_status_pending">Changes not uploaded yet</string>
+    <string name="sync_status_last">Last upload: %s</string>
+    <string name="upload_success">Uploaded %1$d events and %2$d sessions</string>
+    <string name="auto_sync_success">Changes synced to the cloud</string>
+    <string name="error_offline">No internet connection. Connect to the internet and try again.</string>
+    <string name="error_sync_busy">An upload is already in progress.</string>
+    <string name="error_nothing_to_upload">There are no events to upload yet. Add an event first.</string>
+    <string name="error_sync_failed">Upload failed: %s</string>
+    <string name="error_timeout">the server did not respond in time</string>
+    <string name="error_http">the server returned error %d</string>
+    <string name="error_permission_denied">permission denied - check the Firebase database rules</string>
 </resources>

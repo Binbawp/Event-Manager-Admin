@@ -19,12 +19,29 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvEventName"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvEventName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Visible only while the event has not been uploaded to the cloud -->
+            <ImageView
+                android:id="@+id/ivUnsynced"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/cd_not_synced"
+                android:src="@drawable/ic_cloud_off" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvEventMeta"

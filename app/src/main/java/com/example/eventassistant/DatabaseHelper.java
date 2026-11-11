@@ -84,8 +84,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             " ORDER BY substr(e." + COL_EVENT_DATE + ",7,4) || substr(e." + COL_EVENT_DATE
                     + ",4,2) || substr(e." + COL_EVENT_DATE + ",1,2), e." + COL_EVENT_NAME;
 
+    private final Context appContext;   // used to tell SyncPrefs that the data has changed
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.appContext = context.getApplicationContext();
     }
 
     /** SQLite ignores foreign keys unless they are switched on for every connection. */
@@ -121,7 +124,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long insertEvent(Event event) {
         ContentValues values = eventValues(event);
         values.put(COL_EVENT_CLOUD_ID, UUID.randomUUID().toString());
-        return getWritableDatabase().insert(TABLE_EVENTS, null, values);
+        long id = getWritableDatabase().insert(TABLE_EVENTS, null, values);
+        if (id != -1) {
+            recordChange();
+        }
+        return id;
     }
 
     /**
@@ -132,8 +139,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int updateEvent(Event event) {
         ContentValues values = eventValues(event);
         try {
-            return getWritableDatabase().update(TABLE_EVENTS, values,
+            int rows = getWritableDatabase().update(TABLE_EVENTS, values,
                     COL_EVENT_ID + " = ?", new String[]{String.valueOf(event.getId())});
+            if (rows > 0) {
+                recordChange();
+            }
+            return rows;
         } catch (SQLiteConstraintException e) {
             return -1;
         }
@@ -212,8 +223,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /** Deletes an event. Its sessions are removed automatically by ON DELETE CASCADE. */
     public int deleteEvent(long eventId) {
-        return getWritableDatabase().delete(TABLE_EVENTS,
+        int rows = getWritableDatabase().delete(TABLE_EVENTS,
                 COL_EVENT_ID + " = ?", new String[]{String.valueOf(eventId)});
+        if (rows > 0) {
+            recordChange();
+        }
+        return rows;
     }
 
     private List<Event> queryEvents(String where, String[] args) {
@@ -341,6 +356,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void markEventUnsynced(long eventId) {
         getWritableDatabase().execSQL("UPDATE " + TABLE_EVENTS + " SET " + COL_EVENT_SYNCED
                 + " = 0 WHERE " + COL_EVENT_ID + " = ?", new Object[]{eventId});
+        recordChange();
+    }
+
+    /** Flags every event as uploaded. Called by CloudSyncManager after a successful upload. */
+    public void markAllEventsSynced() {
+        ContentValues values = new ContentValues();
+        values.put(COL_EVENT_SYNCED, 1);
+        getWritableDatabase().update(TABLE_EVENTS, values, null, null);
+    }
+
+    /** Tells the sync settings that the local data is now newer than the cloud copy. */
+    private void recordChange() {
+        SyncPrefs.recordChange(appContext);
     }
 
     // =====================================================================

@@ -48,6 +48,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         Event event = events.get(position);
 
         holder.tvName.setText(event.getName());
+        // Cloud-off icon = this event (or one of its sessions) has not been uploaded yet
+        holder.ivUnsynced.setVisibility(event.isSynced() ? View.GONE : View.VISIBLE);
 
         // "12/11/2026 · Greenwich Tech Society" (organiser is optional in the display)
         String meta = event.getDate();
@@ -76,12 +78,14 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         final TextView tvName;
         final TextView tvMeta;
         final TextView tvSessions;
+        final View ivUnsynced;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvEventName);
             tvMeta = itemView.findViewById(R.id.tvEventMeta);
             tvSessions = itemView.findViewById(R.id.tvSessionCount);
+            ivUnsynced = itemView.findViewById(R.id.ivUnsynced);
         }
     }
 }
