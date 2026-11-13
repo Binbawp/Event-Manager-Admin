@@ -19,6 +19,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public interface OnEventActionListener {
         void onEventClick(Event event);
         void onEventLongClick(Event event);
+        void onEventEdit(Event event);
     }
 
     private final List<Event> events = new ArrayList<>();
@@ -48,20 +49,25 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         Event event = events.get(position);
 
         holder.tvName.setText(event.getName());
+        holder.tvDay.setText(UiUtils.dayOf(event.getDate()));
+        holder.tvMonth.setText(UiUtils.monthOf(event.getDate()));
         // Cloud-off icon = this event (or one of its sessions) has not been uploaded yet
         holder.ivUnsynced.setVisibility(event.isSynced() ? View.GONE : View.VISIBLE);
 
-        // "12/11/2026 · Greenwich Tech Society" (organiser is optional in the display)
-        String meta = event.getDate();
-        if (event.getOrganiser() != null && !event.getOrganiser().isEmpty()) {
-            meta += " \u00B7 " + event.getOrganiser();
-        }
-        holder.tvMeta.setText(meta);
+        boolean hasLocation = event.getLocation() != null && !event.getLocation().isEmpty();
+        holder.rowLocation.setVisibility(hasLocation ? View.VISIBLE : View.GONE);
+        holder.tvLocation.setText(event.getLocation());
+
+        // Organiser is optional in the display
+        boolean hasOrganiser = event.getOrganiser() != null && !event.getOrganiser().isEmpty();
+        holder.tvMeta.setVisibility(hasOrganiser ? View.VISIBLE : View.GONE);
+        holder.tvMeta.setText(event.getOrganiser());
 
         int count = event.getSessionCount();
         holder.tvSessions.setText(holder.itemView.getResources()
                 .getQuantityString(R.plurals.session_count, count, count));
 
+        holder.btnEdit.setOnClickListener(v -> listener.onEventEdit(event));
         holder.itemView.setOnClickListener(v -> listener.onEventClick(event));
         holder.itemView.setOnLongClickListener(v -> {
             listener.onEventLongClick(event);
@@ -79,6 +85,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         final TextView tvMeta;
         final TextView tvSessions;
         final View ivUnsynced;
+        final TextView tvDay;
+        final TextView tvMonth;
+        final TextView tvLocation;
+        final View rowLocation;
+        final View btnEdit;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +97,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvMeta = itemView.findViewById(R.id.tvEventMeta);
             tvSessions = itemView.findViewById(R.id.tvSessionCount);
             ivUnsynced = itemView.findViewById(R.id.ivUnsynced);
+            tvDay = itemView.findViewById(R.id.tvEventDay);
+            tvMonth = itemView.findViewById(R.id.tvEventMonth);
+            tvLocation = itemView.findViewById(R.id.tvEventLocation);
+            rowLocation = itemView.findViewById(R.id.rowEventLocation);
+            btnEdit = itemView.findViewById(R.id.btnEditEvent);
         }
     }
 }

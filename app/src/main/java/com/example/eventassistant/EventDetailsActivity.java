@@ -2,25 +2,22 @@ package com.example.eventassistant;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
 /**
  * Shows one event with all its details and its sessions (feature c).
  * From here the admin can edit/delete the event, search its sessions,
- * add a session (+), edit a session (tap) or delete a session (long press).
+ * add a session (+ Add session), edit a session (tap) or delete a session (long press).
  */
 public class EventDetailsActivity extends BaseActivity implements SessionAdapter.OnSessionActionListener {
 
@@ -32,7 +29,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
     private Event event;
     private String currentQuery = "";
 
-    private TextView tvName, tvSessionsTitle, tvNoSessions;
+    private TextView tvName, tvSessionsTitle, tvNoSessions, tvDay, tvMonth, tvBadge;
     private TextView tvDate, tvLocation, tvOrganiser, tvDescription, tvEmail, tvPhone;
     private View rowLocation, rowOrganiser, rowDescription, rowEmail, rowPhone;
 
@@ -68,11 +65,29 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
             }
         });
 
-        FloatingActionButton fabAdd = findViewById(R.id.fabAddSession);
-        fabAdd.setOnClickListener(v -> {
+        findViewById(R.id.tvAddSession).setOnClickListener(v -> {
             Intent intent = new Intent(this, AddEditSessionActivity.class);
             intent.putExtra(AddEditSessionActivity.EXTRA_EVENT_ID, eventId);
             startActivity(intent);
+        });
+        findViewById(R.id.btnEditEvent).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddEditEventActivity.class);
+            intent.putExtra(AddEditEventActivity.EXTRA_EVENT_ID, eventId);
+            startActivity(intent);
+        });
+        findViewById(R.id.btnDeleteEvent).setOnClickListener(
+                v -> UiUtils.confirmDeleteEvent(this, dbHelper, event, this::finish));
+
+        // Bottom tabs: go back to the main screen on the chosen tab
+        BottomNavigationView nav = findViewById(R.id.navDetails);
+        nav.setSelectedItemId(R.id.nav_events);
+        nav.setOnItemSelectedListener(item -> {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_TAB, item.getItemId());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+            return true;
         });
     }
 
@@ -93,6 +108,9 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
 
     private void bindViews() {
         tvName = findViewById(R.id.tvEventName);
+        tvDay = findViewById(R.id.tvEventDay);
+        tvMonth = findViewById(R.id.tvEventMonth);
+        tvBadge = findViewById(R.id.tvSessionBadge);
         tvDate = findViewById(R.id.tvDate);
         tvLocation = findViewById(R.id.tvLocation);
         tvOrganiser = findViewById(R.id.tvOrganiser);
@@ -108,7 +126,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         tvNoSessions = findViewById(R.id.tvNoSessions);
     }
 
-    /** Loads the event and fills the details card. Returns false (and closes) if it was deleted. */
+    /** Loads the event and fills the details. Returns false (and closes) if it was deleted. */
     private boolean loadEvent() {
         event = dbHelper.getEvent(eventId);
         if (event == null) {
@@ -118,6 +136,10 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
 
         tvName.setText(event.getName());
         tvDate.setText(event.getDate());
+        tvDay.setText(UiUtils.dayOf(event.getDate()));
+        tvMonth.setText(UiUtils.monthOf(event.getDate()));
+        tvBadge.setText(getResources().getQuantityString(
+                R.plurals.session_count, event.getSessionCount(), event.getSessionCount()));
         bindRow(rowLocation, tvLocation, event.getLocation());
         bindRow(rowOrganiser, tvOrganiser, event.getOrganiser());
         bindRow(rowDescription, tvDescription, event.getDescription());
@@ -150,46 +172,6 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         } else {
             tvNoSessions.setVisibility(View.GONE);
         }
-    }
-
-    // ---------------------------------------------------------------------
-    // Menu: edit / delete the event
-    // ---------------------------------------------------------------------
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_event_details, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_edit_event) {
-            Intent intent = new Intent(this, AddEditEventActivity.class);
-            intent.putExtra(AddEditEventActivity.EXTRA_EVENT_ID, eventId);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_delete_event) {
-            confirmDeleteEvent();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);   // handles the back arrow
-    }
-
-    private void confirmDeleteEvent() {
-        if (event == null) {
-            return;
-        }
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_title)
-                .setMessage(getString(R.string.delete_message, event.getName(), event.getSessionCount()))
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    dbHelper.deleteEvent(eventId);       // its sessions are deleted by the cascade
-                    finish();
-                })
-                .show();
     }
 
     // ---------------------------------------------------------------------

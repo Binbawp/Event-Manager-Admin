@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
-
-    <include layout="@layout/toolbar" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -16,23 +13,107 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:paddingBottom="100dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="96dp">
+                android:orientation="vertical">
 
-                <!-- Event details card; optional rows are hidden from code when empty -->
+                <include layout="@layout/view_back_header" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="8dp">
+
+                <!-- Hero: date block, session count, title and location -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="170dp"
+                    android:background="@drawable/bg_hero"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="top|start"
+                        android:background="@drawable/bg_date"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                android:id="@+id/tvEventDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+                        <TextView
+                android:id="@+id/tvEventMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/dark"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSessionBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:background="@drawable/bg_tag"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="@color/dark"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
+                        android:orientation="vertical">
+                        <TextView
+                android:id="@+id/tvEventName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/rowLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_marginEnd="4dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_pin" />
+                            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- About event; optional rows are hidden from code when empty -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    android:layout_marginTop="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -41,10 +122,11 @@
                         android:padding="16dp">
 
                         <TextView
-                            android:id="@+id/tvEventName"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="22sp"
+                            android:text="@string/about_event"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <LinearLayout
@@ -57,36 +139,16 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
                                 android:text="@string/label_date"
+                                android:textColor="@color/muted"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tvDate"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/rowLocation"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:alpha="0.7"
-                                android:text="@string/label_location"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/tvLocation"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -99,15 +161,16 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
                                 android:text="@string/label_organiser"
+                                android:textColor="@color/muted"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tvOrganiser"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -120,15 +183,16 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
                                 android:text="@string/label_description"
+                                android:textColor="@color/muted"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tvDescription"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -141,15 +205,16 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
                                 android:text="@string/label_email"
+                                android:textColor="@color/muted"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tvEmail"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -162,68 +227,119 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
                                 android:text="@string/label_phone"
+                                android:textColor="@color/muted"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tvPhone"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/tvSessionsTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="8dp"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp">
-
-                    <androidx.appcompat.widget.SearchView
-                        android:id="@+id/searchSessions"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:iconifiedByDefault="false"
-                        app:queryHint="@string/search_sessions_hint" />
-                </com.google.android.material.card.MaterialCardView>
+                        android:layout_marginTop="22dp"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvSessions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
+                        <TextView
+                            android:id="@+id/tvSessionsTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvNoSessions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="24dp"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
+                        <TextView
+                            android:id="@+id/tvAddSession"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:gravity="center_vertical"
+                            android:text="@string/add_session_btn"
+                            android:textColor="@color/lime"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        app:cardCornerRadius="26dp">
+
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/searchSessions"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:iconifiedByDefault="false"
+                            app:queryBackground="@null"
+                            app:queryHint="@string/search_sessions_hint"
+                            app:submitBackground="@null" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSessions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
+
+                    <TextView
+                        android:id="@+id/tvNoSessions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="24dp"
+                        android:textColor="@color/muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddSession"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/add_session"
-            android:src="@drawable/ic_add"
-            app:tint="@color/white" />
+            android:layout_gravity="bottom"
+            android:background="@color/bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditEvent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/edit_event_btn" />
+
+            <ImageButton
+                android:id="@+id/btnDeleteEvent"
+                style="@style/EM.IconBtn"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_marginStart="12dp"
+                android:contentDescription="@string/cd_delete_event"
+                android:src="@drawable/ic_delete"
+                android:tint="@color/danger" />
+        </LinearLayout>
     </FrameLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/nav_bg"
+        app:elevation="0dp"
+        app:itemActiveIndicatorStyle="@style/Widget.EM.ActiveIndicator"
+        app:itemIconTint="@color/nav_item"
+        app:itemTextColor="@color/nav_item"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/nav_menu" />
 </LinearLayout>

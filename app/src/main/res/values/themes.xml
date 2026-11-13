@@ -1,12 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.EventAssistant" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.EventAssistant" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/lime</item>
+        <item name="colorOnPrimary">@color/dark</item>
+        <item name="colorPrimaryContainer">@color/lime</item>
+        <item name="colorOnPrimaryContainer">@color/dark</item>
+        <item name="colorSecondary">@color/lime</item>
+        <item name="colorOnSecondary">@color/dark</item>
+        <item name="colorSurface">@color/bg</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnSurfaceVariant">@color/muted</item>
+        <item name="colorSurfaceContainer">@color/card</item>
+        <item name="colorSurfaceContainerLow">@color/card</item>
+        <item name="colorSurfaceContainerHigh">@color/card</item>
+        <item name="colorSurfaceContainerHighest">@color/chip</item>
+        <item name="colorOutline">@color/muted</item>
+        <item name="colorOutlineVariant">@color/chip</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="materialCardViewStyle">@style/Widget.EM.Card</item>
+        <item name="materialButtonStyle">@style/Widget.EM.Button</item>
+        <item name="floatingActionButtonStyle">@style/Widget.EM.Fab</item>
     </style>
 
-    <style name="Theme.EventAssistant" parent="Base.Theme.EventAssistant">
-        <item name="colorPrimary">@color/brand_primary</item>
-        <item name="colorOnPrimary">@color/white</item>
-    </style>
+    <style name="Theme.EventAssistant" parent="Base.Theme.EventAssistant" />
 </resources>

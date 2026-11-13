@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_primary">#3F51B5</color>
+    <color name="brand_primary">#E9F55B</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Event Manager design palette -->
+    <color name="bg">#0A0A0A</color>
+    <color name="card">#1C1C1C</color>
+    <color name="chip">#262626</color>
+    <color name="lime">#E9F55B</color>
+    <color name="dark">#111111</color>
+    <color name="muted">#A3A3A3</color>
+    <color name="danger">#FF8A80</color>
+    <color name="field_stroke">#2E2E2E</color>
+    <color name="nav_bg">#141414</color>
+    <color name="track_off">#3A3A3A</color>
 </resources>

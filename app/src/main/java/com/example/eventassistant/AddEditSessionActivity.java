@@ -50,7 +50,6 @@ public class AddEditSessionActivity extends BaseActivity {
         tilTime.setEndIconOnClickListener(v -> UiUtils.showTimePicker(this, etTime));
 
         findViewById(R.id.btnSave).setOnClickListener(v -> saveSession());
-        findViewById(R.id.btnCancel).setOnClickListener(v -> finish());
 
         if (sessionId == NO_ID) {
             etSessionId.setText(R.string.session_id_auto);

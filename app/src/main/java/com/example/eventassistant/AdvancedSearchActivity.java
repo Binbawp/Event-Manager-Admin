@@ -103,4 +103,11 @@ public class AdvancedSearchActivity extends BaseActivity implements EventAdapter
     public void onEventLongClick(Event event) {
         // Deleting is done from the home screen or the details screen, not from search results
     }
+
+    @Override
+    public void onEventEdit(Event event) {
+        android.content.Intent intent = new android.content.Intent(this, AddEditEventActivity.class);
+        intent.putExtra(AddEditEventActivity.EXTRA_EVENT_ID, event.getId());
+        startActivity(intent);
+    }
 }

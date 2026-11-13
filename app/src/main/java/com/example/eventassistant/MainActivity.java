@@ -1,46 +1,34 @@
 package com.example.eventassistant;
 
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-
 /**
- * Home screen: lists every event, lets the admin search them, delete them (long press)
- * add events (+), open an event's details (tap), run advanced search and (later) upload to the cloud.
+ * Hosts the three bottom tabs (Dashboard, Events, Settings) and owns the cloud upload,
+ * so the cloud button, the Settings button and auto-sync all share the same code.
  */
-public class MainActivity extends AppCompatActivity implements EventAdapter.OnEventActionListener {
+public class MainActivity extends AppCompatActivity {
+
+    /** Menu id of the tab to open (used when coming back from the event details screen). */
+    public static final String EXTRA_TAB = "tab";
+
+    /** Tab fragments implement this so they reload after data changes or an upload. */
+    public interface Refreshable {
+        void refresh();
+    }
 
     private DatabaseHelper dbHelper;
-    private EventAdapter adapter;
-    private TextView tvEmpty;
-    private String currentQuery = "";
-
-    // Cloud upload (feature e)
     private CloudSyncManager syncManager;
     private LinearProgressIndicator progressSync;
-    private FloatingActionButton fabAdd;
+    private BottomNavigationView nav;
     private boolean uploading = false;
 
     @Override
@@ -48,45 +36,34 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setSupportActionBar(findViewById(R.id.toolbar));
-
         dbHelper = new DatabaseHelper(this);
-        tvEmpty = findViewById(R.id.tvEmpty);
-        progressSync = findViewById(R.id.progressSync);
         syncManager = new CloudSyncManager(this);
+        progressSync = findViewById(R.id.progressSync);
+        nav = findViewById(R.id.nav);
 
-        RecyclerView rvEvents = findViewById(R.id.rvEvents);
-        rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new EventAdapter(this);
-        rvEvents.setAdapter(adapter);
-
-        // Filter the list live as the user types
-        SearchView searchView = findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;   // list is already filtered while typing
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                currentQuery = newText;
-                loadEvents();
-                return true;
-            }
+        nav.setOnItemSelectedListener(item -> {
+            showTab(item.getItemId());
+            return true;
         });
-
-        findViewById(R.id.btnAdvancedSearch).setOnClickListener(
-                v -> startActivity(new Intent(this, AdvancedSearchActivity.class)));
-        fabAdd = findViewById(R.id.fabAddEvent);
-        fabAdd.setOnClickListener(v -> startActivity(new Intent(this, AddEditEventActivity.class)));
+        if (savedInstanceState == null) {
+            int tab = getIntent().getIntExtra(EXTRA_TAB, R.id.nav_dashboard);
+            nav.setSelectedItemId(tab);
+        }
     }
 
-    /** Reload when returning from other screens so changes appear straight away. */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        int tab = intent.getIntExtra(EXTRA_TAB, 0);
+        if (tab != 0) {
+            nav.setSelectedItemId(tab);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        loadEvents();
         autoSyncIfNeeded();      // push any changes made on other screens
     }
 
@@ -96,85 +73,30 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         dbHelper.close();
     }
 
-    /** Reads events from SQLite (filtered by the search text) and refreshes the list. */
-    private void loadEvents() {
-        List<Event> events = dbHelper.getEvents(currentQuery);
-        adapter.setEvents(events);
-        updateSyncStatus();
-
-        if (events.isEmpty()) {
-            tvEmpty.setText(currentQuery.trim().isEmpty() ? R.string.empty_events : R.string.empty_search);
-            tvEmpty.setVisibility(TextView.VISIBLE);
+    private void showTab(int menuId) {
+        Fragment fragment;
+        if (menuId == R.id.nav_events) {
+            fragment = new EventsFragment();
+        } else if (menuId == R.id.nav_settings) {
+            fragment = new SettingsFragment();
         } else {
-            tvEmpty.setVisibility(TextView.GONE);
+            fragment = new DashboardFragment();
         }
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
-    // ---------------------------------------------------------------------
-    // Menu
-    // ---------------------------------------------------------------------
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    /** Switches tab from code (for example "See all" on the Dashboard). */
+    public void selectTab(int menuId) {
+        nav.setSelectedItemId(menuId);
     }
 
-    /** Shows the current state of the Auto-sync tick box every time the menu opens. */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem autoSync = menu.findItem(R.id.action_auto_sync);
-        if (autoSync != null) {
-            autoSync.setChecked(SyncPrefs.isAutoSyncEnabled(this));
-        }
-        return super.onPrepareOptionsMenu(menu);
+    /** Shared database connection for the tab fragments. */
+    public DatabaseHelper db() {
+        return dbHelper;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_upload) {
-            startSync(true);
-            return true;
-        } else if (id == R.id.action_auto_sync) {
-            boolean enabled = !item.isChecked();
-            item.setChecked(enabled);
-            SyncPrefs.setAutoSyncEnabled(this, enabled);
-            if (enabled) {
-                autoSyncIfNeeded();
-            }
-            return true;
-        } else if (id == R.id.action_sample_data) {
-            dbHelper.insertSampleData();                 // temporary - remove before submitting
-            loadEvents();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // ---------------------------------------------------------------------
-    // EventAdapter.OnEventActionListener
-    // ---------------------------------------------------------------------
-
-    @Override
-    public void onEventClick(Event event) {
-        Intent intent = new Intent(this, EventDetailsActivity.class);
-        intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, event.getId());
-        startActivity(intent);
-    }
-
-    @Override
-    public void onEventLongClick(Event event) {
-        // Ask before deleting, and warn that the event's sessions go with it
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_title)
-                .setMessage(getString(R.string.delete_message, event.getName(), event.getSessionCount()))
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    dbHelper.deleteEvent(event.getId());
-                    loadEvents();
-                })
-                .show();
+    public boolean isUploading() {
+        return uploading;
     }
 
     // ---------------------------------------------------------------------
@@ -185,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
      * Automatic sync: runs only if the admin switched Auto-sync on, has already done one manual
      * upload, has changes waiting, and the phone is online. Otherwise it does nothing, quietly.
      */
-    private void autoSyncIfNeeded() {
+    public void autoSyncIfNeeded() {
         if (SyncPrefs.isAutoSyncEnabled(this)
                 && SyncPrefs.hasEverSynced(this)
                 && SyncPrefs.hasPendingChanges(this)
@@ -197,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
     /**
      * Uploads everything to the cloud on a background thread and shows the result.
      *
-     * @param manual true when the admin tapped the upload icon, false for automatic sync
+     * @param manual true when the admin tapped an upload button, false for automatic sync
      */
-    private void startSync(boolean manual) {
+    public void startSync(boolean manual) {
         if (uploading) {
             return;
         }
@@ -225,45 +147,23 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         });
     }
 
-    /**
-     * Hides the progress bar and refreshes the list (the "not uploaded" icons) and status line.
-     *
-     * @return false if the screen was closed while the upload was running
-     */
+    /** Hides the progress bar and refreshes the current tab. Returns false if the screen closed. */
     private boolean finishSync() {
         uploading = false;
         if (isFinishing() || isDestroyed()) {
             return false;
         }
         progressSync.setVisibility(View.GONE);
-        loadEvents();
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (current instanceof Refreshable) {
+            ((Refreshable) current).refresh();
+        }
         return true;
     }
 
-    /** Shows "Not uploaded yet", "Changes not uploaded yet" or the time of the last upload. */
-    private void updateSyncStatus() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) {
-            return;
-        }
-        if (!SyncPrefs.hasEverSynced(this)) {
-            actionBar.setSubtitle(R.string.sync_status_never);
-        } else if (SyncPrefs.hasPendingChanges(this)) {
-            actionBar.setSubtitle(R.string.sync_status_pending);
-        } else {
-            String time = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                    .format(new Date(SyncPrefs.getLastSyncTime(this)));
-            actionBar.setSubtitle(getString(R.string.sync_status_last, time));
-        }
-    }
-
-    private void showSnackbar(String message) {
+    public void showSnackbar(String message) {
         Snackbar.make(findViewById(R.id.main), message, Snackbar.LENGTH_LONG)
-                .setAnchorView(fabAdd)          // keeps the message above the + button
+                .setAnchorView(nav)         // keeps the message above the bottom tabs
                 .show();
-    }
-
-    private void showMessage(@StringRes int messageId) {
-        Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
     }
 }

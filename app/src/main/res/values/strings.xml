@@ -1,5 +1,11 @@
 <resources>
-    <string name="app_name">Event Assistant</string>
+    <string name="app_name">Event Manager</string>
+    <string name="welcome_admin">Welcome, Admin</string>
+    <string name="events_heading">Events</string>
+    <string name="filter_all">All</string>
+    <string name="filter_upcoming">Upcoming</string>
+    <string name="filter_past">Past</string>
+    <string name="about_event">About event</string>
 
     <!-- Home screen -->
     <string name="search_hint">Search events…</string>
@@ -130,4 +136,37 @@
     <string name="error_timeout">the server did not respond in time</string>
     <string name="error_http">the server returned error %d</string>
     <string name="error_permission_denied">permission denied - check the Firebase database rules</string>
+
+    <!-- Event Manager design -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_settings">Settings</string>
+    <string name="manage_events">Manage your events</string>
+    <string name="stat_events">Events</string>
+    <string name="stat_sessions">Sessions</string>
+    <string name="stat_need_sessions">Need sessions</string>
+    <string name="new_event_btn">+ New event</string>
+    <string name="add_session_btn">+ Add session</string>
+    <string name="upcoming_events">Upcoming events</string>
+    <string name="see_all">See all</string>
+    <string name="new_event_fab">New event</string>
+    <string name="settings_heading">Settings</string>
+    <string name="cloud_sync">Cloud sync</string>
+    <string name="cloud_sync_desc">Push your events and sessions to the cloud so the user app stays up to date.</string>
+    <string name="update_cloud">Update cloud</string>
+    <string name="auto_sync_desc">Update the cloud after every change</string>
+    <string name="data_title">Data</string>
+    <string name="data_desc">Fill the app with example events and sessions to try it out.</string>
+    <string name="add_sample_data_btn">+ Add sample data</string>
+    <string name="sample_data_added">Sample data added</string>
+    <string name="create_event_first">Create an event first</string>
+    <string name="add_session_to">Add session to…</string>
+    <string name="edit_event_btn">Edit event</string>
+    <string name="save_changes">Save changes</string>
+    <string name="create_event">Create event</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_edit_event">Edit event</string>
+    <string name="cd_delete_event">Delete event</string>
+    <string name="cd_update_cloud">Update cloud</string>
+    <string name="admin">Admin</string>
 </resources>

@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <include layout="@layout/toolbar" />
+    <include layout="@layout/view_back_header" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -18,16 +18,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="24dp">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_event_name"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="6dp"
                 android:id="@+id/tilName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_event_name">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_event_name"
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -35,19 +47,27 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Calendar icon opens a date picker; the date can also be typed -->
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_event_date"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDate"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_event_date"
                 app:endIconContentDescription="@string/pick_date"
                 app:endIconDrawable="@drawable/ic_calendar"
-                app:endIconMode="custom"
-                app:placeholderText="@string/date_placeholder">
+                app:endIconMode="custom">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_event_date"
                     android:id="@+id/etDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -55,45 +75,72 @@
                     android:maxLength="10" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_location"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilLocation"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_location">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_location"
                     android:id="@+id/etLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_organiser"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilOrganiser"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_organiser">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_organiser"
                     android:id="@+id/etOrganiser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_description"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDescription"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_description">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_description"
                     android:id="@+id/etDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -102,59 +149,80 @@
                     android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_email"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_email">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_email"
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/hint_phone"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPhone"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.EM.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:hint="@string/hint_phone">
 
                 <com.google.android.material.textfield.TextInputEditText
+                android:hint="@string/hint_phone"
                     android:id="@+id/etPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCancel"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/cancel" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnReview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/review" />
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dp">
+
+        <ImageButton
+            android:id="@+id/btnDeleteEvent"
+            style="@style/EM.IconBtn"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/cd_delete_event"
+            android:src="@drawable/ic_delete"
+            android:tint="@color/danger" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/save_changes" />
+    </LinearLayout>
+
 </LinearLayout>

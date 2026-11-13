@@ -45,7 +45,9 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         Session session = sessions.get(position);
 
         holder.tvName.setText(session.getName());
-        holder.tvMeta.setText(session.getTime() + " \u00B7 " + session.getType());
+        holder.tvTime.setText(session.getTime());
+        holder.tvType.setText(session.getType());
+        holder.tvType.setVisibility(notEmpty(session.getType()) ? View.VISIBLE : View.GONE);
 
         // Speaker and room are optional: build the line from whichever exist
         StringBuilder people = new StringBuilder();
@@ -79,13 +81,15 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
 
     static class SessionViewHolder extends RecyclerView.ViewHolder {
         final TextView tvName;
-        final TextView tvMeta;
+        final TextView tvTime;
+        final TextView tvType;
         final TextView tvPeople;
 
         SessionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvSessionName);
-            tvMeta = itemView.findViewById(R.id.tvSessionMeta);
+            tvTime = itemView.findViewById(R.id.tvSessionTime);
+            tvType = itemView.findViewById(R.id.tvSessionType);
             tvPeople = itemView.findViewById(R.id.tvSessionPeople);
         }
     }

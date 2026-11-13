@@ -3,6 +3,8 @@ package com.example.eventassistant;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
@@ -46,7 +48,15 @@ public class AddEditEventActivity extends BaseActivity {
         tilDate.setEndIconOnClickListener(v -> UiUtils.showDatePicker(this, etDate));
 
         findViewById(R.id.btnReview).setOnClickListener(v -> onReviewClicked());
-        findViewById(R.id.btnCancel).setOnClickListener(v -> finish());
+
+        View btnDelete = findViewById(R.id.btnDeleteEvent);
+        if (eventId == NO_ID) {
+            btnDelete.setVisibility(View.GONE);
+            ((Button) findViewById(R.id.btnReview)).setText(R.string.create_event);
+        } else {
+            btnDelete.setOnClickListener(v ->
+                    UiUtils.confirmDeleteEvent(this, dbHelper, dbHelper.getEvent(eventId), this::finish));
+        }
 
         if (eventId != NO_ID) {
             fillForm(dbHelper.getEvent(eventId));
