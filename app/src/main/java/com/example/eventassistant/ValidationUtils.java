@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-/** Input validation rules shared by every form in the app. */
+/**
+ * Utility class providing validation methods for user input across application forms.
+ */
 public final class ValidationUtils {
 
     private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{2}/\\d{2}/\\d{4}$");
@@ -16,13 +18,18 @@ public final class ValidationUtils {
 
     private ValidationUtils() { }
 
-    /** True only for a real calendar date written as DD/MM/YYYY (so 31/02/2026 is rejected). */
+    /**
+     * Validates whether a date string represents a valid calendar date in DD/MM/YYYY format.
+     *
+     * @param date the date string to validate
+     * @return true if the format is correct and represents a valid calendar date; false otherwise
+     */
     public static boolean isValidDate(String date) {
         if (date == null || !DATE_PATTERN.matcher(date).matches()) {
             return false;
         }
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
-        format.setLenient(false);   // strict: do not roll 31/02 over to 03/03
+        format.setLenient(false);   // Strict parsing to prevent invalid calendar dates (e.g., 31/02/2026)
         try {
             format.parse(date);
             return true;
@@ -31,16 +38,33 @@ public final class ValidationUtils {
         }
     }
 
-    /** True for a 24-hour time written as HH:mm, e.g. 09:30. */
+    /**
+     * Validates whether a time string matches the 24-hour time format (HH:mm).
+     *
+     * @param time the time string to validate
+     * @return true if the format is valid (00:00 to 23:59); false otherwise
+     */
     public static boolean isValidTime(String time) {
         return time != null && TIME_PATTERN.matcher(time).matches();
     }
 
+    /**
+     * Validates whether an email string matches the standard email format.
+     *
+     * @param email the email string to validate
+     * @return true if valid; false otherwise
+     */
     public static boolean isValidEmail(String email) {
         return email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
-    /** Accepts 7-15 digits with an optional leading + ; spaces, dashes and brackets are ignored. */
+    /**
+     * Validates whether a phone number contains between 7 and 15 digits, allowing an optional leading '+'.
+     * Spaces, hyphens, and parentheses are stripped before validation.
+     *
+     * @param phone the phone string to validate
+     * @return true if valid; false otherwise
+     */
     public static boolean isValidPhone(String phone) {
         if (phone == null) {
             return false;

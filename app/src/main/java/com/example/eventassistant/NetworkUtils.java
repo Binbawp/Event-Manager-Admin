@@ -5,18 +5,19 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 
-/** Checks whether the phone currently has a network connection that can reach the internet. */
+/**
+ * Utility class for verifying network connectivity and internet availability.
+ */
 public final class NetworkUtils {
 
     private NetworkUtils() { }
 
     /**
-     * True if the active network (Wi-Fi, mobile data, ...) offers internet access.
-     * Needs the ACCESS_NETWORK_STATE permission.
+     * Checks if the active network connection provides internet capability.
+     * Requires the {@code android.permission.ACCESS_NETWORK_STATE} permission in AndroidManifest.xml.
      *
-     * This is only a quick pre-check so the app can say "no internet" immediately. A network
-     * that claims internet access can still fail (weak signal, blocked server), so the actual
-     * upload also handles connection errors and time-outs.
+     * @param context the application context
+     * @return true if an active network connection with internet capability is available; false otherwise
      */
     public static boolean isOnline(Context context) {
         ConnectivityManager manager =
@@ -24,7 +25,7 @@ public final class NetworkUtils {
         if (manager == null) {
             return false;
         }
-        Network network = manager.getActiveNetwork();           // null when there is no connection
+        Network network = manager.getActiveNetwork();           // Returns null if no network is active
         if (network == null) {
             return false;
         }

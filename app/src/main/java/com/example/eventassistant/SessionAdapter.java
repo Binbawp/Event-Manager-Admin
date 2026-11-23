@@ -11,9 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Binds a list of Session objects to the cards shown on the event details screen. */
+/**
+ * RecyclerView Adapter for displaying session items in list views.
+ */
 public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionViewHolder> {
 
+    /**
+     * Listener interface for handling click and long click actions on session items.
+     */
     public interface OnSessionActionListener {
         void onSessionClick(Session session);
         void onSessionLongClick(Session session);
@@ -26,6 +31,11 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         this.listener = listener;
     }
 
+    /**
+     * Updates the session dataset and refreshes list binding.
+     *
+     * @param newSessions list of new Session items
+     */
     public void setSessions(List<Session> newSessions) {
         sessions.clear();
         sessions.addAll(newSessions);
@@ -49,7 +59,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         holder.tvType.setText(session.getType());
         holder.tvType.setVisibility(notEmpty(session.getType()) ? View.VISIBLE : View.GONE);
 
-        // Speaker and room are optional: build the line from whichever exist
+        // Format speaker and room details line
         StringBuilder people = new StringBuilder();
         if (notEmpty(session.getSpeaker())) {
             people.append(holder.itemView.getContext().getString(R.string.speaker_line, session.getSpeaker()));

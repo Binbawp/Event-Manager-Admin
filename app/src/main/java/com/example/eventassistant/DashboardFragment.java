@@ -21,7 +21,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-/** Dashboard tab: totals, quick actions and the next few upcoming events. */
+/**
+ * Dashboard tab fragment displaying summary metrics, quick navigation shortcuts, and upcoming events.
+ */
 public class DashboardFragment extends Fragment
         implements MainActivity.Refreshable, EventAdapter.OnEventActionListener {
 
@@ -100,7 +102,7 @@ public class DashboardFragment extends Fragment
         return c.getTime();
     }
 
-    /** "+ Add session": choose which event the new session belongs to, then open the form. */
+    /** Displays a dialog allowing the user to choose an event before launching session creation. */
     private void pickEventForSession() {
         if (allEvents.isEmpty()) {
             Toast.makeText(requireContext(), R.string.create_event_first, Toast.LENGTH_SHORT).show();

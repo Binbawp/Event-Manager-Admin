@@ -15,9 +15,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.List;
 
 /**
- * Shows one event with all its details and its sessions (feature c).
- * From here the admin can edit/delete the event, search its sessions,
- * add a session (+ Add session), edit a session (tap) or delete a session (long press).
+ * Detailed view activity displaying comprehensive event information and associated session lists.
+ * Provides functionality for editing/deleting the event, filtering sessions by keyword,
+ * creating new sessions, and modifying or deleting existing sessions.
  */
 public class EventDetailsActivity extends BaseActivity implements SessionAdapter.OnSessionActionListener {
 
@@ -49,7 +49,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         adapter = new SessionAdapter(this);
         rvSessions.setAdapter(adapter);
 
-        // Search this event's sessions by name or description while typing
+        // Configure live session search filter listener
         SearchView searchView = findViewById(R.id.searchSessions);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -78,7 +78,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         findViewById(R.id.btnDeleteEvent).setOnClickListener(
                 v -> UiUtils.confirmDeleteEvent(this, dbHelper, event, this::finish));
 
-        // Bottom tabs: go back to the main screen on the chosen tab
+        // Bottom navigation setup to navigate back to top-level tab screens
         BottomNavigationView nav = findViewById(R.id.navDetails);
         nav.setSelectedItemId(R.id.nav_events);
         nav.setOnItemSelectedListener(item -> {
@@ -91,7 +91,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         });
     }
 
-    /** Reload on return so edits made in other screens appear straight away. */
+    /** Reload data on resume to reflect edits made in child activities. */
     @Override
     protected void onResume() {
         super.onResume();
@@ -126,7 +126,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         tvNoSessions = findViewById(R.id.tvNoSessions);
     }
 
-    /** Loads the event and fills the details. Returns false (and closes) if it was deleted. */
+    /** Loads event details from SQLite. Returns false and finishes activity if deleted. */
     private boolean loadEvent() {
         event = dbHelper.getEvent(eventId);
         if (event == null) {
@@ -146,12 +146,11 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
         bindRow(rowEmail, tvEmail, event.getContactEmail());
         bindRow(rowPhone, tvPhone, event.getContactPhone());
 
-        // Total number of sessions for this event (not affected by the search box)
         tvSessionsTitle.setText(getString(R.string.sessions_title, event.getSessionCount()));
         return true;
     }
 
-    /** Shows a label/value row only when the (optional) value has been entered. */
+    /** Displays a row if its value is populated; hides it otherwise. */
     private void bindRow(View row, TextView valueView, String value) {
         if (value == null || value.isEmpty()) {
             row.setVisibility(View.GONE);
@@ -175,7 +174,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
     }
 
     // ---------------------------------------------------------------------
-    // SessionAdapter.OnSessionActionListener
+    // SessionAdapter.OnSessionActionListener Implementation
     // ---------------------------------------------------------------------
 
     @Override
@@ -194,7 +193,7 @@ public class EventDetailsActivity extends BaseActivity implements SessionAdapter
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
                     dbHelper.deleteSession(session);
-                    if (loadEvent()) {                    // refresh the session count too
+                    if (loadEvent()) {                    // Refresh session list and count badge
                         loadSessions();
                     }
                 })

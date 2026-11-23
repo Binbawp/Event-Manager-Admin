@@ -14,13 +14,14 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
- * Form used both to add a new event and to edit an existing one (feature a).
- * Flow: fill the form -> Review (validation + duplicate check) -> confirmation dialog
- * showing every detail -> Confirm saves, Edit returns to the form with the data kept.
+ * Activity for creating a new event or modifying an existing event record.
+ * <p>
+ * Workflow sequence:
+ * Form input -> Input validation & Duplicate check -> Confirmation summary dialog -> Save to SQLite.
  */
 public class AddEditEventActivity extends BaseActivity {
 
-    /** Pass the id of an existing event to edit it; leave out to add a new one. */
+    /** Intent extra key for passing an existing event ID to edit; omitted when creating a new event. */
     public static final String EXTRA_EVENT_ID = "event_id";
     private static final long NO_ID = -1;
 
@@ -30,7 +31,7 @@ public class AddEditEventActivity extends BaseActivity {
     private TextInputLayout tilName, tilDate, tilLocation, tilOrganiser, tilEmail, tilPhone;
     private TextInputEditText etName, etDate, etLocation, etOrganiser, etDescription, etEmail, etPhone;
 
-    /** The first field that failed validation; it receives focus so the user sees the error. */
+    /** Reference to the first invalid input field to request focus upon validation failure. */
     private TextInputEditText firstInvalid;
 
     @Override
@@ -44,7 +45,7 @@ public class AddEditEventActivity extends BaseActivity {
 
         bindViews();
 
-        // The calendar icon opens a date picker; the date can also be typed and is validated
+        // Calendar end-icon button launches DatePickerDialog
         tilDate.setEndIconOnClickListener(v -> UiUtils.showDatePicker(this, etDate));
 
         findViewById(R.id.btnReview).setOnClickListener(v -> onReviewClicked());
@@ -85,7 +86,7 @@ public class AddEditEventActivity extends BaseActivity {
         etEmail = findViewById(R.id.etEmail);
         etPhone = findViewById(R.id.etPhone);
 
-        // An error message disappears as soon as the user starts correcting the field
+        // Reset error messages on text modification
         clearErrorWhenTyping(etName, tilName);
         clearErrorWhenTyping(etDate, tilDate);
         clearErrorWhenTyping(etLocation, tilLocation);
@@ -109,9 +110,9 @@ public class AddEditEventActivity extends BaseActivity {
         });
     }
 
-    /** Pre-fills the form when editing. */
+    /** Pre-populates form fields when editing an existing event. */
     private void fillForm(Event event) {
-        if (event == null) {          // the event was deleted in the meantime
+        if (event == null) {          // Finish activity if the target event record no longer exists
             finish();
             return;
         }
@@ -125,7 +126,7 @@ public class AddEditEventActivity extends BaseActivity {
     }
 
     // ---------------------------------------------------------------------
-    // Validate -> confirm -> save
+    // Form Validation and Confirmation Logic
     // ---------------------------------------------------------------------
 
     private void onReviewClicked() {
@@ -134,7 +135,7 @@ public class AddEditEventActivity extends BaseActivity {
         if (!validate(event)) {
             return;
         }
-        // Rule: no two events may have the same name and date
+        // Unique constraint check: duplicate event name and date combination
         if (dbHelper.eventExists(event.getName(), event.getDate(), eventId)) {
             flag(tilName, etName, R.string.error_duplicate_event);
             etName.requestFocus();
@@ -157,8 +158,7 @@ public class AddEditEventActivity extends BaseActivity {
     }
 
     /**
-     * Checks required fields (name, date, location, organiser) and the format of the date
-     * and of the optional email/phone. Every problem is shown at once.
+     * Validates required inputs (name, date, location, organiser) and format requirements for date, email, and phone.
      */
     private boolean validate(Event event) {
         firstInvalid = null;
@@ -177,7 +177,7 @@ public class AddEditEventActivity extends BaseActivity {
         if (event.getOrganiser().isEmpty()) {
             flag(tilOrganiser, etOrganiser, R.string.error_organiser_required);
         }
-        // Optional fields: only checked when something was entered
+        // Optional contact fields validation
         if (!event.getContactEmail().isEmpty() && !ValidationUtils.isValidEmail(event.getContactEmail())) {
             flag(tilEmail, etEmail, R.string.error_email_format);
         }
@@ -199,12 +199,12 @@ public class AddEditEventActivity extends BaseActivity {
         }
     }
 
-    /** Shows the accepted details back to the user: Confirm saves, Edit goes back to the form. */
+    /** Displays a dialog summarizing entered event details prior to database persistence. */
     private void showConfirmationDialog(Event event) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.confirm_title)
                 .setMessage(buildSummary(event))
-                .setNegativeButton(R.string.edit, null)          // just closes the dialog
+                .setNegativeButton(R.string.edit, null)          // Dismiss dialog to allow editing
                 .setPositiveButton(R.string.confirm, (dialog, which) -> saveEvent(event))
                 .show();
     }
@@ -223,7 +223,7 @@ public class AddEditEventActivity extends BaseActivity {
 
     private void appendLine(StringBuilder sb, @StringRes int labelId, String value) {
         sb.append(getString(labelId)).append(": ")
-                .append(value.isEmpty() ? "\u2014" : value)      // em dash for an empty optional field
+                .append(value.isEmpty() ? "\u2014" : value)      // Display em dash for empty optional fields
                 .append('\n');
     }
 
@@ -238,7 +238,7 @@ public class AddEditEventActivity extends BaseActivity {
         if (success) {
             Toast.makeText(this, eventId == NO_ID ? R.string.event_saved : R.string.event_updated,
                     Toast.LENGTH_SHORT).show();
-            finish();                                          // back to the previous screen
+            finish();                                          // Return to caller screen
         } else {
             Toast.makeText(this, R.string.save_failed, Toast.LENGTH_LONG).show();
         }

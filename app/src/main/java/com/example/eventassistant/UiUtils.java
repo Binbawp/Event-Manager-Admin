@@ -14,21 +14,34 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-/** Small UI helpers used by several activities (avoids duplicating the picker code). */
+/**
+ * Common UI helper utilities for user input components, dialog displays, and date/time operations.
+ */
 public final class UiUtils {
 
     private UiUtils() { }
 
-    /** Returns the trimmed text of a TextView/EditText, never null. */
+    /**
+     * Extracts and trims the text contents of a {@link TextView} or {@link android.widget.EditText}.
+     *
+     * @param view the input field
+     * @return non-null trimmed String contents
+     */
     public static String text(TextView view) {
         return view.getText() == null ? "" : view.getText().toString().trim();
     }
 
-    /** Opens a date picker and writes the chosen date into the field as DD/MM/YYYY. */
+    /**
+     * Displays a DatePickerDialog and populates the target view with the selected date in DD/MM/YYYY format.
+     * If the field already contains a valid date, the picker initializes with that date.
+     *
+     * @param context the context to display the dialog
+     * @param target  the view to receive the formatted date string
+     */
     public static void showDatePicker(Context context, TextView target) {
         Calendar cal = Calendar.getInstance();
         String current = text(target);
-        if (ValidationUtils.isValidDate(current)) {          // start on the date already in the field
+        if (ValidationUtils.isValidDate(current)) {          // Initialize picker with existing date value
             String[] parts = current.split("/");
             cal.set(Integer.parseInt(parts[2]), Integer.parseInt(parts[1]) - 1,
                     Integer.parseInt(parts[0]));
@@ -40,7 +53,12 @@ public final class UiUtils {
                 .show();
     }
 
-    /** Opens a 24-hour time picker and writes the chosen time into the field as HH:mm. */
+    /**
+     * Displays a 24-hour TimePickerDialog and populates the target view with the selected time in HH:mm format.
+     *
+     * @param context the context to display the dialog
+     * @param target  the view to receive the formatted time string
+     */
     public static void showTimePicker(Context context, TextView target) {
         Calendar cal = Calendar.getInstance();
         String current = text(target);
@@ -56,12 +74,22 @@ public final class UiUtils {
                 .show();
     }
 
-    /** Day number of a DD/MM/YYYY date ("12/11/2026" -> "12"), or "--" if it is not valid. */
+    /**
+     * Extracts the day component from a DD/MM/YYYY date string.
+     *
+     * @param date the formatted date string
+     * @return the day as a string (e.g. "12"), or "--" if invalid
+     */
     public static String dayOf(String date) {
         return ValidationUtils.isValidDate(date) ? String.valueOf(Integer.parseInt(date.split("/")[0])) : "--";
     }
 
-    /** Short upper-case month of a DD/MM/YYYY date ("12/11/2026" -> "NOV"), or "" if not valid. */
+    /**
+     * Extracts the short uppercase month name from a DD/MM/YYYY date string.
+     *
+     * @param date the formatted date string
+     * @return three-letter uppercase month (e.g. "NOV"), or empty string if invalid
+     */
     public static String monthOf(String date) {
         if (!ValidationUtils.isValidDate(date)) {
             return "";
@@ -70,7 +98,12 @@ public final class UiUtils {
         return new DateFormatSymbols(Locale.ENGLISH).getShortMonths()[month - 1].toUpperCase(Locale.ENGLISH);
     }
 
-    /** Parses DD/MM/YYYY, or returns null if it is not a valid date. */
+    /**
+     * Parses a date string in DD/MM/YYYY format into a {@link Date} object.
+     *
+     * @param date the formatted date string
+     * @return parsed Date instance, or null if parsing fails
+     */
     public static Date parseDate(String date) {
         try {
             SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
@@ -81,7 +114,15 @@ public final class UiUtils {
         }
     }
 
-    /** Asks before deleting an event (its sessions go with it), then runs {@code after}. */
+    /**
+     * Displays a confirmation dialog before deleting an event and cascading deletion of its sessions.
+     * Runs the provided {@link Runnable} callback upon successful deletion.
+     *
+     * @param context the context to display the dialog
+     * @param db      the DatabaseHelper instance
+     * @param event   the event to delete
+     * @param after   callback executed after deletion completes
+     */
     public static void confirmDeleteEvent(Context context, DatabaseHelper db, Event event, Runnable after) {
         if (event == null) {
             return;

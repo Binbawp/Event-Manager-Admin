@@ -2,17 +2,20 @@ package com.example.eventassistant;
 
 import java.io.Serializable;
 
-/** Model class representing one row of the "sessions" table (a session that belongs to an event). */
+/**
+ * Data model representing a session record associated with an event.
+ * Implements {@link Serializable} to allow passing Session objects between Android components via Intent extras.
+ */
 public class Session implements Serializable {
 
-    private long id;            // auto-generated session ID
-    private long eventId;       // foreign key to the parent event
-    private String name;        // required
-    private String time;        // required, stored as HH:mm
-    private String speaker;     // optional
-    private String room;        // optional
-    private String type;        // Workshop / Presentation / Panel Discussion / Networking / Keynote / Others
-    private String description; // optional
+    private long id;            // Local auto-incremented session primary key
+    private long eventId;       // Foreign key referencing the parent event ID
+    private String name;        // Session title (required)
+    private String time;        // Scheduled start time formatted as HH:mm (required)
+    private String speaker;     // Speaker name (optional)
+    private String room;        // Room location/number (optional)
+    private String type;        // Session classification category (e.g., Keynote, Workshop, Presentation)
+    private String description; // Optional detailed session description
 
     public Session() { }
 

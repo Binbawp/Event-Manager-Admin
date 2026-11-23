@@ -13,13 +13,13 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
- * Form used both to add a session to an event and to edit an existing session (feature b).
- * The session ID is generated automatically by the database and is shown read-only.
+ * Form activity for adding a new session or editing an existing session within an event.
+ * The session ID is auto-incremented by SQLite and displayed as read-only.
  */
 public class AddEditSessionActivity extends BaseActivity {
 
-    public static final String EXTRA_EVENT_ID = "event_id";        // required: the parent event
-    public static final String EXTRA_SESSION_ID = "session_id";    // only when editing
+    public static final String EXTRA_EVENT_ID = "event_id";        // Parent event ID (required)
+    public static final String EXTRA_SESSION_ID = "session_id";    // Target session ID (when editing)
     private static final long NO_ID = -1;
 
     private DatabaseHelper dbHelper;
@@ -42,10 +42,10 @@ public class AddEditSessionActivity extends BaseActivity {
 
         bindViews();
 
-        // Session type is chosen from a list instead of being typed
+        // Populate session type dropdown list options
         String[] types = getResources().getStringArray(R.array.session_types);
         actType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, types));
-        actType.setText(types[0], false);        // sensible default; false = do not filter the list
+        actType.setText(types[0], false);        // Set default session type selection
 
         tilTime.setEndIconOnClickListener(v -> UiUtils.showTimePicker(this, etTime));
 
@@ -95,7 +95,7 @@ public class AddEditSessionActivity extends BaseActivity {
     }
 
     private void fillForm(Session session) {
-        if (session == null) {          // the session was deleted in the meantime
+        if (session == null) {          // Close screen if session record was removed externally
             finish();
             return;
         }
@@ -112,7 +112,7 @@ public class AddEditSessionActivity extends BaseActivity {
         String name = UiUtils.text(etName);
         String time = UiUtils.text(etTime);
 
-        // Required fields: session name and time
+        // Required field validation: session name and start time
         TextInputEditText firstInvalid = null;
         if (name.isEmpty()) {
             tilName.setError(getString(R.string.error_session_name_required));

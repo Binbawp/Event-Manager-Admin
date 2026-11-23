@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Advanced search (feature d): find events by date and/or organiser.
- * Tapping a result opens the full details of that event.
+ * Advanced search activity allowing multi-criteria filtering of events by date and organiser.
+ * Tapping a result navigates to the detailed view for that event.
  */
 public class AdvancedSearchActivity extends BaseActivity implements EventAdapter.OnEventActionListener {
 
@@ -25,7 +25,7 @@ public class AdvancedSearchActivity extends BaseActivity implements EventAdapter
     private TextInputEditText etDate, etOrganiser;
     private TextView tvResultsInfo;
 
-    /** Once a search has run, it is repeated on return so deleted/edited events are up to date. */
+    /** Tracks whether a query has been executed to allow auto-refreshing search results upon resume. */
     private boolean hasSearched = false;
 
     @Override
@@ -101,12 +101,12 @@ public class AdvancedSearchActivity extends BaseActivity implements EventAdapter
 
     @Override
     public void onEventLongClick(Event event) {
-        // Deleting is done from the home screen or the details screen, not from search results
+        // Deletion operations are available from home or event detail screens
     }
 
     @Override
     public void onEventEdit(Event event) {
-        android.content.Intent intent = new android.content.Intent(this, AddEditEventActivity.class);
+        Intent intent = new Intent(this, AddEditEventActivity.class);
         intent.putExtra(AddEditEventActivity.EXTRA_EVENT_ID, event.getId());
         startActivity(intent);
     }

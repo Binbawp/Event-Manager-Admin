@@ -1,6 +1,5 @@
 package com.example.eventassistant;
 
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Binds a list of Event objects to the cards shown on the home screen. */
+/**
+ * RecyclerView Adapter for displaying event items in list views.
+ */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
-    /** The activity implements this so the adapter stays free of navigation/database code. */
+    /**
+     * Listener interface for handling user interaction events on event list items.
+     */
     public interface OnEventActionListener {
         void onEventClick(Event event);
         void onEventLongClick(Event event);
@@ -29,7 +32,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         this.listener = listener;
     }
 
-    /** Replaces the displayed events and refreshes the list. */
+    /**
+     * Updates the dataset and notifies the RecyclerView of changes.
+     *
+     * @param newEvents list of new Event items to display
+     */
     public void setEvents(List<Event> newEvents) {
         events.clear();
         events.addAll(newEvents);
@@ -51,14 +58,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.tvName.setText(event.getName());
         holder.tvDay.setText(UiUtils.dayOf(event.getDate()));
         holder.tvMonth.setText(UiUtils.monthOf(event.getDate()));
-        // Cloud-off icon = this event (or one of its sessions) has not been uploaded yet
+        // Display unsynced icon if event or sessions have pending cloud sync
         holder.ivUnsynced.setVisibility(event.isSynced() ? View.GONE : View.VISIBLE);
 
         boolean hasLocation = event.getLocation() != null && !event.getLocation().isEmpty();
         holder.rowLocation.setVisibility(hasLocation ? View.VISIBLE : View.GONE);
         holder.tvLocation.setText(event.getLocation());
 
-        // Organiser is optional in the display
         boolean hasOrganiser = event.getOrganiser() != null && !event.getOrganiser().isEmpty();
         holder.tvMeta.setVisibility(hasOrganiser ? View.VISIBLE : View.GONE);
         holder.tvMeta.setText(event.getOrganiser());
@@ -71,7 +77,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.itemView.setOnClickListener(v -> listener.onEventClick(event));
         holder.itemView.setOnLongClickListener(v -> {
             listener.onEventLongClick(event);
-            return true;   // true = long press handled, so it is not also treated as a click
+            return true;   // Consume event to prevent triggering standard click listener
         });
     }
 

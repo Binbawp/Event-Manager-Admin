@@ -1,25 +1,24 @@
 package com.example.eventassistant;
 
-
 import java.io.Serializable;
 
 /**
- * Model class representing one event row in the "events" table.
- * Serializable so a whole Event can later be passed between activities via an Intent.
+ * Data model representing an event record in the database.
+ * Implements {@link Serializable} to allow passing Event objects between Android components via Intent extras.
  */
 public class Event implements Serializable {
 
-    private long id;                 // local auto-generated primary key
-    private String cloudId;          // UUID used as the key in the cloud database (feature e)
-    private String name;             // required
-    private String date;             // required, stored as DD/MM/YYYY
-    private String location;
-    private String organiser;
-    private String description;      // optional
-    private String contactEmail;     // optional
-    private String contactPhone;     // optional
-    private boolean synced;          // false = changed locally and not yet uploaded
-    private int sessionCount;        // calculated by the query, not stored in the table
+    private long id;                 // Local auto-incremented primary key
+    private String cloudId;          // Unique UUID key used for cloud database synchronization
+    private String name;             // Event title (required)
+    private String date;             // Event date formatted as DD/MM/YYYY (required)
+    private String location;         // Event location/venue
+    private String organiser;        // Organizing entity or person
+    private String description;      // Optional detailed event description
+    private String contactEmail;     // Optional contact email address
+    private String contactPhone;     // Optional contact phone number
+    private boolean synced;          // Sync state: false if pending cloud upload, true if synchronized
+    private int sessionCount;        // Dynamic session count calculated via query, not persisted in table
 
     public Event() { }
 

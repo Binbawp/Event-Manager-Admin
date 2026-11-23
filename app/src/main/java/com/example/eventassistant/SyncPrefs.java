@@ -4,14 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * Small settings store (SharedPreferences, Lecture 5) that remembers the cloud sync state.
- *
- * "Pending changes" is tracked with two counters instead of a true/false flag:
- *   - changeCounter goes up every time the local database changes
- *   - syncedCounter is the changeCounter value that the last successful upload covered
- * Changes are pending while changeCounter > syncedCounter. This stays correct even if the
- * admin edits an event while an upload is still running (a plain flag would wrongly be
- * cleared when that upload finishes).
+ * SharedPreferences manager for tracking local database modifications and cloud synchronization state.
+ * <p>
+ * Pending local changes are tracked using two counters:
+ * <ul>
+ *     <li>{@code changeCounter}: incremented on every local insert, update, or delete operation.</li>
+ *     <li>{@code syncedCounter}: stores the snapshot of {@code changeCounter} covered by the last successful upload.</li>
+ * </ul>
+ * Pending changes exist whenever {@code changeCounter > syncedCounter}.
  */
 public final class SyncPrefs {
 
@@ -27,17 +27,34 @@ public final class SyncPrefs {
         return context.getApplicationContext().getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
     }
 
-    /** Called by DatabaseHelper whenever an event or session is added, edited or deleted. */
+    /**
+     * Increments the database change counter.
+     * Called by {@link DatabaseHelper} whenever an event or session is created, modified, or removed.
+     *
+     * @param context the application context
+     */
     public static synchronized void recordChange(Context context) {
         SharedPreferences p = prefs(context);
         p.edit().putLong(KEY_CHANGE_COUNTER, p.getLong(KEY_CHANGE_COUNTER, 0) + 1).apply();
     }
 
+    /**
+     * Retrieves the current change counter value.
+     *
+     * @param context the application context
+     * @return total change count
+     */
     public static long getChangeCounter(Context context) {
         return prefs(context).getLong(KEY_CHANGE_COUNTER, 0);
     }
 
-    /** Called after a successful upload with the change counter value the upload was built from. */
+    /**
+     * Updates sync state counters and timestamp following a successful cloud payload upload.
+     *
+     * @param context         the application context
+     * @param counterAtUpload change counter value when the uploaded snapshot was captured
+     * @param timeMillis      epoch timestamp of successful synchronization
+     */
     public static synchronized void markSynced(Context context, long counterAtUpload, long timeMillis) {
         prefs(context).edit()
                 .putLong(KEY_SYNCED_COUNTER, counterAtUpload)
@@ -45,24 +62,53 @@ public final class SyncPrefs {
                 .apply();
     }
 
+    /**
+     * Checks if local database modifications exist that have not yet been synchronized to the cloud.
+     *
+     * @param context the application context
+     * @return true if local changes are pending synchronization; false otherwise
+     */
     public static boolean hasPendingChanges(Context context) {
         SharedPreferences p = prefs(context);
         return p.getLong(KEY_CHANGE_COUNTER, 0) > p.getLong(KEY_SYNCED_COUNTER, 0);
     }
 
+    /**
+     * Retrieves the timestamp of the last successful cloud upload.
+     *
+     * @param context the application context
+     * @return last sync timestamp in milliseconds, or 0 if never synced
+     */
     public static long getLastSyncTime(Context context) {
         return prefs(context).getLong(KEY_LAST_SYNC_TIME, 0);
     }
 
-    /** Automatic syncing only starts after the admin has done one manual upload. */
+    /**
+     * Checks whether a cloud sync has been successfully completed at least once.
+     *
+     * @param context the application context
+     * @return true if previous sync history exists; false otherwise
+     */
     public static boolean hasEverSynced(Context context) {
         return getLastSyncTime(context) > 0;
     }
 
+    /**
+     * Checks if automatic cloud synchronization is enabled.
+     *
+     * @param context the application context
+     * @return true if auto-sync is enabled; false otherwise
+     */
     public static boolean isAutoSyncEnabled(Context context) {
         return prefs(context).getBoolean(KEY_AUTO_SYNC, true);
     }
 
+    /**
+     * Enables or disables automatic cloud synchronization setting.
+     *
+     * @param context the application context
+     * @param enabled desired auto-sync state
+     */
     public static void setAutoSyncEnabled(Context context, boolean enabled) {
         prefs(context).edit().putBoolean(KEY_AUTO_SYNC, enabled).apply();
     }

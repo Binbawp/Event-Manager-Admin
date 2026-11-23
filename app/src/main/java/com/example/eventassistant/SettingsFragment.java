@@ -16,7 +16,9 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.text.DateFormat;
 import java.util.Date;
 
-/** Settings tab: upload to the cloud, Auto-sync switch and the sample data button. */
+/**
+ * Settings tab fragment providing manual cloud upload trigger, auto-sync toggle, and sample data population.
+ */
 public class SettingsFragment extends Fragment implements MainActivity.Refreshable {
 
     private TextView tvSyncStatus;
@@ -44,7 +46,7 @@ public class SettingsFragment extends Fragment implements MainActivity.Refreshab
 
         view.findViewById(R.id.btnSync).setOnClickListener(v -> main().startSync(true));
 
-        // Temporary: remove before submitting
+        // Sample data loader helper
         view.findViewById(R.id.btnSampleData).setOnClickListener(v -> {
             main().db().insertSampleData();
             Toast.makeText(requireContext(), R.string.sample_data_added, Toast.LENGTH_SHORT).show();
@@ -58,7 +60,7 @@ public class SettingsFragment extends Fragment implements MainActivity.Refreshab
         refresh();
     }
 
-    /** Shows "Not uploaded yet", "Changes not uploaded yet" or the time of the last upload. */
+    /** Updates sync status label showing pending state, last sync time, or un-synchronized state. */
     @Override
     public void refresh() {
         if (!isAdded() || getView() == null) {

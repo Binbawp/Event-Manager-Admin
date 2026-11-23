@@ -21,8 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Events tab: every event, live search, All / Upcoming / Past filter, advanced search,
- * add (New event), edit (pencil), open details (tap) and delete (long press).
+ * Events tab fragment displaying full event listings with live search, chip filtering (All / Upcoming / Past),
+ * advanced search navigation, and event management actions.
  */
 public class EventsFragment extends Fragment
         implements MainActivity.Refreshable, EventAdapter.OnEventActionListener {
@@ -53,12 +53,12 @@ public class EventsFragment extends Fragment
         adapter = new EventAdapter(this);
         rv.setAdapter(adapter);
 
-        // Filter the list live as the user types
+        // Configure live search query listener
         SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;   // list is already filtered while typing
+                return false;   // List updates dynamically as search text changes
             }
 
             @Override
@@ -104,7 +104,7 @@ public class EventsFragment extends Fragment
         chip.setTextColor(ContextCompat.getColor(requireContext(), selected ? R.color.dark : R.color.white));
     }
 
-    /** Reads events from SQLite (filtered by search text and chip) and refreshes the list. */
+    /** Retrieves events matching current query and filter state from database. */
     @Override
     public void refresh() {
         if (!isAdded() || getView() == null) {
@@ -122,7 +122,7 @@ public class EventsFragment extends Fragment
         }
     }
 
-    /** Keeps only upcoming (today or later) or past events when a chip other than All is chosen. */
+    /** Filters event list based on active filter mode selection. */
     private List<Event> applyFilter(List<Event> events) {
         if (filterMode == FILTER_ALL) {
             return events;

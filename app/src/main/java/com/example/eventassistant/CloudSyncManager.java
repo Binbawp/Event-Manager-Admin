@@ -19,39 +19,51 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Uploads every event (with its sessions) to the Firebase Realtime Database (feature e).
- *
- * How it works:
- *  - The whole local database is turned into one JSON document and sent with a single
- *    HTTP PUT to /events.json, so ALL events are uploaded at once.
- *  - PUT replaces what is stored in the cloud, so the cloud always becomes an exact copy of
- *    the local database. Events or sessions deleted on the phone disappear from the cloud too.
- *  - The network work runs on a background thread (never the UI thread, which would freeze
- *    the app); results are posted back to the UI thread through a Handler.
- *
- * Cloud structure (the hybrid user app reads exactly this):
- *   events / {eventCloudId} / name, date, location, organiser, description,
- *                             contactEmail, contactPhone,
+ * Manages asynchronous cloud synchronization of local event and session data to Firebase Realtime Database.
+ * <p>
+ * Payload synchronization strategy:
+ * <ul>
+ *     <li>The local database records are serialized into a consolidated JSON payload.</li>
+ *     <li>An HTTP {@code PUT} request is issued to replace the cloud database node at {@code /events.json}.</li>
+ *     <li>Network calls are executed off the UI thread via a single-threaded executor pool to prevent UI blocking.</li>
+ *     <li>Sync results and callbacks are dispatched back to the main UI thread via {@link Handler}.</li>
+ * </ul>
+ * Cloud JSON structure format:
+ * <pre>
+ *   events / {eventCloudId} / name, date, location, organiser, description, contactEmail, contactPhone,
  *                             sessions / s{sessionId} / name, time, speaker, room, type, description
+ * </pre>
  */
 public class CloudSyncManager {
 
-    /** Base address of the Firebase Realtime Database (no trailing slash). */
+    /** Base URL endpoint for Firebase Realtime Database. */
     private static final String FIREBASE_URL =
             "https://event-manager-ac75b-default-rtdb.asia-southeast1.firebasedatabase.app";
     private static final String EVENTS_URL = FIREBASE_URL + "/events.json";
     private static final int TIMEOUT_MS = 15000;
 
-    /** One worker thread, so two uploads can never run at the same time. */
+    /** Single-threaded executor ensuring sequential background upload tasks. */
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final AtomicBoolean UPLOAD_RUNNING = new AtomicBoolean(false);
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
-    /** Results are always delivered on the UI thread. */
+    /**
+     * Callback interface for delivering synchronization status results to caller components.
+     */
     public interface SyncCallback {
+        /**
+         * Invoked on main thread when synchronization completes successfully.
+         *
+         * @param eventCount   total number of events uploaded
+         * @param sessionCount total number of sessions uploaded
+         */
         void onSuccess(int eventCount, int sessionCount);
 
-        /** @param message a complete, user-friendly message that can be shown as it is */
+        /**
+         * Invoked on main thread when synchronization fails.
+         *
+         * @param message localized user-friendly error message
+         */
         void onError(String message);
     }
 
@@ -61,7 +73,11 @@ public class CloudSyncManager {
         this.appContext = context.getApplicationContext();
     }
 
-    /** Uploads everything now (if there is a connection). Must be called from the UI thread. */
+    /**
+     * Initiates asynchronous cloud synchronization. Must be invoked from the main UI thread.
+     *
+     * @param callback callback to handle success or error responses
+     */
     public void syncNow(SyncCallback callback) {
         if (!NetworkUtils.isOnline(appContext)) {
             callback.onError(appContext.getString(R.string.error_offline));
@@ -72,7 +88,7 @@ public class CloudSyncManager {
             return;
         }
 
-        // Remember which version of the data this upload is built from (see SyncPrefs)
+        // Capture local change counter state prior to initiating upload payload construction
         final long counterAtStart = SyncPrefs.getChangeCounter(appContext);
 
         EXECUTOR.execute(() -> {
@@ -80,7 +96,7 @@ public class CloudSyncManager {
             try {
                 List<Event> events = db.getEvents(null);
 
-                // Safety net: a brand-new install with no events must not wipe the cloud data
+                // Prevent initial empty database sync from wiping cloud data on new installation
                 if (events.isEmpty() && !SyncPrefs.hasEverSynced(appContext)) {
                     postError(callback, appContext.getString(R.string.error_nothing_to_upload));
                     return;
@@ -89,7 +105,7 @@ public class CloudSyncManager {
                 Payload payload = buildPayload(db, events);
                 putJson(payload.json);
 
-                // Only flag the events as uploaded if nothing changed while we were uploading
+                // Mark events as synced if no local modifications occurred during upload window
                 if (SyncPrefs.getChangeCounter(appContext) == counterAtStart) {
                     db.markAllEventsSynced();
                 }
@@ -115,10 +131,10 @@ public class CloudSyncManager {
     }
 
     // ---------------------------------------------------------------------
-    // Building the JSON
+    // Payload Generation
     // ---------------------------------------------------------------------
 
-    /** The JSON text to upload plus the totals shown to the admin afterwards. */
+    /** Encapsulates JSON string payload and total item counts. */
     private static class Payload {
         String json;
         int eventCount;
@@ -150,14 +166,13 @@ public class CloudSyncManager {
                     sessionJson.put("room", session.getRoom());
                     sessionJson.put("type", session.getType());
                     sessionJson.put("description", session.getDescription());
-                    // The "s" prefix matters: Firebase turns an object whose keys are small
-                    // consecutive numbers (1, 2, 3) into an ARRAY, which would break the user app.
+                    // Prefix keys with 's' to avoid Firebase interpreting sequential numeric keys as JSON arrays
                     sessionsJson.put("s" + session.getId(), sessionJson);
                 }
                 eventJson.put("sessions", sessionsJson);
                 totalSessions += sessions.size();
             }
-            // The UUID (not the local auto-number) is the key, so it is the same on every device
+            // Use cloud UUID as key for cross-device consistency
             root.put(event.getCloudId(), eventJson);
         }
 
@@ -169,10 +184,15 @@ public class CloudSyncManager {
     }
 
     // ---------------------------------------------------------------------
-    // HTTP
+    // HTTP Operations
     // ---------------------------------------------------------------------
 
-    /** Sends the JSON with an HTTP PUT. Throws IOException if the server does not accept it. */
+    /**
+     * Executes HTTP PUT request sending JSON payload to Firebase endpoint.
+     *
+     * @param json serialized JSON payload string
+     * @throws IOException on network failures or non-2xx HTTP response codes
+     */
     private void putJson(String json) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(EVENTS_URL).openConnection();
         try {
