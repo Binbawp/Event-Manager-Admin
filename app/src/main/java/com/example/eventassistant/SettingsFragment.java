@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +16,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /**
- * Settings tab fragment providing manual cloud upload trigger, auto-sync toggle, and sample data population.
+ * Settings tab fragment providing manual cloud upload trigger and auto-sync toggle
  */
 public class SettingsFragment extends Fragment implements MainActivity.Refreshable {
 
@@ -45,13 +44,6 @@ public class SettingsFragment extends Fragment implements MainActivity.Refreshab
         });
 
         view.findViewById(R.id.btnSync).setOnClickListener(v -> main().startSync(true));
-
-        // Sample data loader helper
-        view.findViewById(R.id.btnSampleData).setOnClickListener(v -> {
-            main().db().insertSampleData();
-            Toast.makeText(requireContext(), R.string.sample_data_added, Toast.LENGTH_SHORT).show();
-            refresh();
-        });
     }
 
     @Override

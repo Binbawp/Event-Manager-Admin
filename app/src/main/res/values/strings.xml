@@ -12,7 +12,6 @@
     <string name="advanced_search">Advanced search</string>
     <string name="add_event">Add event</string>
     <string name="upload_to_cloud">Upload to cloud</string>
-    <string name="add_sample_data">Add sample data (testing)</string>
     <string name="coming_soon">Coming soon</string>
     <string name="empty_events">No events yet.\nTap + to add one.</string>
     <string name="empty_search">No events match your search.</string>
@@ -155,10 +154,6 @@
     <string name="cloud_sync_desc">Push your events and sessions to the cloud so the user app stays up to date.</string>
     <string name="update_cloud">Update cloud</string>
     <string name="auto_sync_desc">Update the cloud after every change</string>
-    <string name="data_title">Data</string>
-    <string name="data_desc">Fill the app with example events and sessions to try it out.</string>
-    <string name="add_sample_data_btn">+ Add sample data</string>
-    <string name="sample_data_added">Sample data added</string>
     <string name="create_event_first">Create an event first</string>
     <string name="add_session_to">Add session to…</string>
     <string name="edit_event_btn">Edit event</string>

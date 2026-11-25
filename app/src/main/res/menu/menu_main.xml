@@ -14,10 +14,4 @@
         android:checkable="true"
         android:title="@string/auto_sync"
         app:showAsAction="never" />
-
-    <!-- Temporary item for testing - remove before submitting -->
-    <item
-        android:id="@+id/action_sample_data"
-        android:title="@string/add_sample_data"
-        app:showAsAction="never" />
 </menu>

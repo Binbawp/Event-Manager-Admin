@@ -199,7 +199,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         String q = query.trim();
         return queryEvents(" WHERE e." + COL_EVENT_NAME + " LIKE ? OR e." + COL_EVENT_DESCRIPTION
-                + " LIKE ?", new String[]{q + "%", "%" + q + "%"});   // Parametrized query protects against SQL injection
+                + " LIKE ?", new String[]{"%" + q + "%", "%" + q + "%"});   // Parametrized query protects against SQL injection
     }
 
     /**
@@ -363,7 +363,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (query != null && !query.trim().isEmpty()) {
             String q = query.trim();
             sql += " AND (" + COL_SESSION_NAME + " LIKE ? OR " + COL_SESSION_DESCRIPTION + " LIKE ?)";
-            args.add(q + "%");
+            args.add("%" + q + "%");
             args.add("%" + q + "%");
         }
         sql += " ORDER BY " + COL_SESSION_TIME + ", " + COL_SESSION_NAME;
@@ -418,45 +418,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /** Records a change notification in shared preferences. */
     private void recordChange() {
         SyncPrefs.recordChange(appContext);
-    }
-
-    // =====================================================================
-    // Sample Test Data Initialization
-    // =====================================================================
-
-    /** Inserts sample event and session records into the database for demonstration testing. */
-    public void insertSampleData() {
-        long id1 = insertSampleEvent("Tech Conference 2026", "12/11/2026", "London",
-                "Greenwich Tech Society", "Annual conference on mobile and cloud technology");
-        insertSampleEvent("Career Fair", "20/11/2026", "Manchester",
-                "Greenwich Careers", "Meet employers hiring graduates");
-        insertSampleEvent("Hack Night", "05/12/2026", "Online",
-                "Code Club", "Overnight hackathon for beginners");
-
-        if (id1 != -1) {
-            insertSampleSession(id1, "Opening Keynote", "09:00", "Keynote");
-            insertSampleSession(id1, "Android Workshop", "11:00", "Workshop");
-            insertSampleSession(id1, "Networking Lunch", "13:00", "Networking");
-        }
-    }
-
-    private long insertSampleEvent(String name, String date, String location,
-                                   String organiser, String description) {
-        Event e = new Event();
-        e.setName(name);
-        e.setDate(date);
-        e.setLocation(location);
-        e.setOrganiser(organiser);
-        e.setDescription(description);
-        return insertEvent(e);
-    }
-
-    private void insertSampleSession(long eventId, String name, String time, String type) {
-        Session s = new Session();
-        s.setEventId(eventId);
-        s.setName(name);
-        s.setTime(time);
-        s.setType(type);
-        insertSession(s);
     }
 }
